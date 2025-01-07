@@ -1,0 +1,14 @@
+text,category,priority
+"Subject: Issue with order #1234, my printer is not working properly",help_ticket,high
+"Urgent! System is down.",help_ticket,high
+"My login is not working.",help_ticket,mid
+"I need help with my account settings",help_ticket,low
+"Can you send production report for last week",product_information_request,mid
+"What are the status of the machines?",product_information_request,mid
+"I would like to get the production numbers for the month of July.",product_information_request,mid
+"Here is my resume and cover letter",job_application,low
+"I'd like to apply for the opening job",job_application,low
+"I'm interested in the position at your company.",job_application,low
+"Attached my curriculum",job_application,low
+"Hi there, just saying hi",not_found,low
+"Can you please urgently send me the company presentation?  Thanks!",product_information_request,high
