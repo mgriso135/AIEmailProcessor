@@ -6,7 +6,7 @@ def create_connection():
     try:
         conn = sqlite3.connect('emails.db')
         if conn:
-            create_table(conn) # Create the table if the connection is successful
+           create_table(conn)
         return conn
     except sqlite3.Error as e:
         print(e)
@@ -28,18 +28,19 @@ def create_table(conn):
                 priority TEXT,
                 email_body TEXT,
                 email_date TEXT,
-                processed INTEGER DEFAULT 0
+                processed INTEGER DEFAULT 0,
+                language TEXT
             )
         """)
         conn.commit()
         print("Table 'emails' created or exists already.")
     except sqlite3.Error as e:
-        print(f"Error creating table: {e}")
+         print(f"Error creating table: {e}")
 
 def insert_email(conn, email_data):
     """ Insert email data into the emails table """
-    sql = ''' INSERT INTO emails(email_id, contact_name, company, email_address, phone_number, category, priority, email_body, email_date, processed)
-              VALUES(?,?,?,?,?,?,?,?,?,?) '''
+    sql = ''' INSERT INTO emails(email_id, contact_name, company, email_address, phone_number, category, priority, email_body, email_date, processed, language)
+              VALUES(?,?,?,?,?,?,?,?,?,?,?) '''
     cur = conn.cursor()
     cur.execute(sql, email_data)
     conn.commit()

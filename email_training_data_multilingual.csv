@@ -1,0 +1,34 @@
+text,category,priority,language
+"Subject: Issue with order #1234, my printer is not working properly",help_ticket,high,en
+"Urgent! System is down.",help_ticket,high,en
+"My login is not working.",help_ticket,mid,en
+"I need help with my account settings",help_ticket,low,en
+"Can you send production report for last week",product_information_request,mid,en
+"What are the status of the machines?",product_information_request,mid,en
+"I would like to get the production numbers for the month of July.",product_information_request,mid,en
+"Here is my resume and cover letter",job_application,low,en
+"I'd like to apply for the opening job",job_application,low,en
+"I'm interested in the position at your company.",job_application,low,en
+"Attached my curriculum",job_application,low,en
+"Ciao ho un problema con l'ordine #5678 la mia stampante non funziona",help_ticket,high,it
+"Urgente! Il sistema è inattivo.",help_ticket,high,it
+"Il mio login non funziona.",help_ticket,mid,it
+"Ho bisogno di aiuto con le impostazioni del mio account",help_ticket,low,it
+"Puoi inviare il report di produzione della scorsa settimana",product_information_request,mid,it
+"Qual è lo stato delle macchine?",product_information_request,mid,it
+"Vorrei avere i numeri di produzione del mese di luglio.",product_information_request,mid,it
+"Ecco il mio curriculum e la mia lettera di presentazione",job_application,low,it
+"Vorrei candidarmi per la posizione aperta",job_application,low,it
+"Sono interessato alla posizione presso la tua azienda.",job_application,low,it
+"Allegato il mio curriculum",job_application,low,it
+"Hola, tengo un problema con el pedido #9012"" mi impresora no funciona",help_ticket,high,es
+"¡Urgente! El sistema está caído.",help_ticket,high,es
+"Mi inicio de sesión no funciona.",help_ticket,mid,es
+"Necesito ayuda con la configuración de mi cuenta",help_ticket,low,es
+"¿Puedes enviar el informe de producción de la semana pasada?",product_information_request,mid,es
+"¿Cuál es el estado de las máquinas?",product_information_request,mid,es
+"Me gustaría obtener los números de producción del mes de julio.",product_information_request,mid,es
+"Aquí está mi currículum y mi carta de presentación",job_application,low,es
+"Me gustaría postularme para el puesto vacante",job_application,low,es
+"Estoy interesado en la posición en su empresa.",job_application,low,es
+"Adjunto mi currículum",job_application,low,es

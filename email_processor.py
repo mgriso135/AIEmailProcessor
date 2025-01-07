@@ -14,6 +14,10 @@ from nltk.corpus import stopwords
 import nltk
 from dateutil import parser
 import pandas as pd
+from langdetect import detect
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 load_dotenv()
 
@@ -38,23 +42,30 @@ def load_training_data(file_path):
       print(f"File loaded correctly, number of rows: {len(df)}")
       print(f"Text sample: {df['text'].iloc[0]}")
       texts = df['text'].tolist()
+      languages = df['language'].tolist()
       for i, text in enumerate(texts):
           if not isinstance(text, str):
               print(f"Error: Text at index {i} is not a string: {text}, type: {type(text)}")
           texts[i] = clean_text(text)
-      return texts, df['category'].tolist(), df['priority'].tolist()
+      return texts, df['category'].tolist(), df['priority'].tolist(), languages
     except Exception as e:
-       print(f"Error loading the training dataset {e}")
-       return [],[],[]
+        print(f"Error loading the training dataset {e}")
+        return [],[],[],[]
 
 def clean_text(text):
     text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text
 
+def detect_language(text):
+     try:
+        language = detect(text)
+        return language
+     except:
+        return "unknown"
 
 # Load training data from CSV
-training_file = 'email_training_data.csv'
-texts, categories, priorities = load_training_data(training_file)
+training_file = 'email_training_data_multilingual.csv'
+texts, categories, priorities, languages = load_training_data(training_file)
 
 if not texts:
     print("Error: training data is empty.")
@@ -72,20 +83,20 @@ else:
 
 
 def get_email_data():
-     """Fetches emails and extracts required data"""
+    """Fetches emails and extracts required data"""
 
-     email_address = os.getenv("EMAIL_ADDRESS")
-     email_password = os.getenv("EMAIL_PASSWORD")
-     imap_server = os.getenv("IMAP_SERVER")
-     conn = create_connection()
+    email_address = os.getenv("EMAIL_ADDRESS")
+    email_password = os.getenv("EMAIL_PASSWORD")
+    imap_server = os.getenv("IMAP_SERVER")
+    conn = create_connection()
 
-     if not all([email_address, email_password, imap_server]):
+    if not all([email_address, email_password, imap_server]):
          print("Error: Email credentials missing.")
          return
 
-     print("Attempting to connect to the IMAP server...") #Log before connecting
+    print("Attempting to connect to the IMAP server...") #Log before connecting
 
-     try:
+    try:
          # Connect to the IMAP server
         mail = imaplib.IMAP4_SSL(imap_server)
         mail.login(email_address, email_password)
@@ -138,6 +149,9 @@ def get_email_data():
                       else:
                           email_date = datetime.now().isoformat()
 
+                      language = detect_language(email_body)
+                      print(f"Detected language: {language}")
+
 
                       contact_name = extract_name(email_body)
                       company = extract_company(email_body)
@@ -148,20 +162,24 @@ def get_email_data():
                       category = category_model.predict(email_text_features)[0]
                       priority = priority_model.predict(email_text_features)[0]
 
-                      email_data = (email_id.decode(), contact_name, company, email_address, phone_number, category, priority, email_body, email_date, 0)
+                      email_data = (email_id.decode(), contact_name, company, email_address, phone_number, category, priority, email_body, email_date, 0, language)
 
                       insert_email(conn, email_data)
 
                       print(f"Email from: {contact_name} processed and inserted")
+
+                      #Send summary Email
+                      summary = f"Contact Name: {contact_name}\nCompany: {company}\nEmail Address: {email_address}\nPhone Number: {phone_number}\nCategory: {category}\nPriority: {priority}\nLanguage:{language}\nDate:{email_date}"
+                      send_summary_email("mgrisoster@gmail.com", summary, email_address, email_password)
                       #mark as read
                       #mail.store(email_id, "+FLAGS", "\\Seen")
-     except Exception as e:
-         print(f"An error occurred: {e}")
-     finally:
-        if conn:
-            conn.close()
-        if 'mail' in locals() and mail:
-            mail.logout()
+    except Exception as e:
+             print(f"An error occurred: {e}")
+    finally:
+            if conn:
+                conn.close()
+            if 'mail' in locals() and mail:
+                mail.logout()
 
 def extract_name(text):
     doc = nlp(text)
@@ -188,5 +206,32 @@ def extract_phone(text):
     phone_match = re.search(r'[\d\-\.\s()+]{7,}',text)
     return phone_match.group(0) if phone_match else "Not found"
 
+def send_summary_email(recipient_email, summary, email_address, email_password):
+    """Sends a summary email with the identified features."""
+
+    sender_email = email_address
+    sender_password = email_password
+
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = recipient_email
+    message['Subject'] = 'Email Processing Summary'
+    message.attach(MIMEText(summary, 'plain'))
+
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.send_message(message)
+        print(f"Summary email sent to {recipient_email}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+from database import get_emails, create_connection
+
 if __name__ == '__main__':
-    get_email_data()
+   get_email_data()
+   conn = create_connection()
+   if conn:
+     emails = get_emails(conn, False)
+     df = pd.DataFrame(emails, columns = ["id","email_id","contact_name","company","email_address","phone_number","category","priority","email_body","email_date","processed", "language"])
+     print(df)
+     conn.close()
